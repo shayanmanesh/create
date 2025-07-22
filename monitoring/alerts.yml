@@ -1,0 +1,73 @@
+groups:
+  - name: create-ai-alerts
+    interval: 30s
+    rules:
+      # High CPU Usage
+      - alert: HighCPUUsage
+        expr: rate(process_cpu_seconds_total[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is above 80% (current value: {{ $value }}%)"
+      
+      # High Memory Usage  
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is above 85% (current value: {{ $value }}%)"
+      
+      # API Response Time
+      - alert: SlowAPIResponse
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow API response times"
+          description: "95th percentile response time is above 2 seconds"
+      
+      # Creation Pipeline Failures
+      - alert: HighCreationFailureRate
+        expr: rate(creation_failures_total[5m]) / rate(creation_requests_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High creation failure rate"
+          description: "More than 10% of creations are failing"
+      
+      # Revenue Target Progress
+      - alert: RevenueBehindTarget
+        expr: (revenue_total / 20000000) < (hour() / 23)
+        for: 30m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Revenue behind $20M target"
+          description: "Current revenue progress: ${{ $value }}"
+      
+      # Surge Pricing Active
+      - alert: SurgePricingActive
+        expr: surge_pricing_active == 1
+        for: 1m
+        labels:
+          severity: info
+        annotations:
+          summary: "Surge pricing is active"
+          description: "Server load has triggered surge pricing"
+      
+      # Database Connection Pool
+      - alert: DatabaseConnectionPoolExhausted
+        expr: db_connection_pool_available < 5
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Database connection pool nearly exhausted"
+          description: "Only {{ $value }} connections available"

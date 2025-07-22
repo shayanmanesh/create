@@ -50,6 +50,15 @@ export default function HomePage() {
     "#AITimeMachine"
   ]
 
+  // Generate deterministic particle positions based on index
+  const particles = Array.from({ length: 50 }, (_, i) => ({
+    id: i,
+    x: ((i * 37) % 100) + '%',
+    y: ((i * 23) % 100) + '%',
+    delay: (i % 10) * 0.5,
+    duration: 8 + (i % 5) * 2,
+  }))
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-black to-pink-900">
       {/* Hero Section */}
@@ -58,21 +67,22 @@ export default function HomePage() {
         
         {/* Animated background particles */}
         <div className="absolute inset-0">
-          {[...Array(50)].map((_, i) => (
+          {particles.map((particle) => (
             <motion.div
-              key={i}
+              key={particle.id}
               className="absolute w-1 h-1 bg-white rounded-full"
-              initial={{
-                x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1920),
-                y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 1080),
-                opacity: Math.random(),
+              style={{
+                left: particle.x,
+                top: particle.y,
               }}
+              initial={{ opacity: 0 }}
               animate={{
-                y: [null, -100],
-                opacity: [null, 0],
+                y: [-20, -120],
+                opacity: [0, 0.8, 0],
               }}
               transition={{
-                duration: Math.random() * 10 + 5,
+                duration: particle.duration,
+                delay: particle.delay,
                 repeat: Infinity,
                 ease: "linear",
               }}
